@@ -1,0 +1,261 @@
+---
+title: "Práctica 2"
+date: 2025-01-27
+order: 2
+---
+
+# 🚀 Práctica 2: Publicar tu Portafolio con Vercel
+
+- **Práctica**: 02 - Publicación de Portafolio
+- **Fecha**: 27/01/2025
+- **Entorno**: Vercel + Fumadocs + Next.js
+- **Tipo**: Despliegue y Publicación Web
+
+
+*Esta práctica te guiará paso a paso para publicar tu portafolio de análisis de datos usando Vercel con Fumadocs, creando un sitio web profesional y accesible desde cualquier lugar.*
+
+## 📖 Lee antes (5 min)
+
+- **Vercel Documentation**: https://vercel.com/docs
+- **Fumadocs Documentation**: https://fumadocs.vercel.app/
+- **Next.js Deployment**: https://nextjs.org/docs/deployment
+
+---
+
+## 🎯 Resultado esperado
+
+Al final de la práctica tendrás:
+
+- ✅ Un repo personal creado desde el template
+- ✅ Vercel conectado con tu repositorio de GitHub
+- ✅ Tu sitio online en una URL del tipo: `https://<nombre-del-proyecto>.vercel.app/`
+- ✅ Las secciones del día completadas (mínimo un borrador)
+
+---
+
+## 1. Crear tu repo desde el template (5–10 min)
+
+### Pasos detallados:
+
+1. **Abrí el template**: https://github.com/ucudal/ia-portfolio-template
+2. **Clic en "Use this template"** → "Create a new repository"
+3. **Completa la información**:
+   - **Owner**: tu usuario personal
+   - **Repository name**: algo simple, p. ej. `ia-portfolio` o `portfolio-ia`
+   - **Public** ✅ (importante para poder publicar Pages)
+4. **Clic en "Create repository"**
+
+### 🧠 Notas importantes:
+
+- **No hagas fork**. Debe ser "Use this template"
+- Elegí un nombre corto y sin espacios
+- Activá **Public** para poder publicar Pages
+- Agregá una descripción breve del repo
+
+---
+
+## 2. Desplegar con Vercel (5 min)
+
+### Configuración en Vercel:
+
+1. **Ve a [vercel.com](https://vercel.com)** y crea una cuenta (o inicia sesión con GitHub)
+2. **Clic en "New Project"**
+3. **Importa tu repositorio** de GitHub:
+   - Selecciona el repo que acabas de crear
+   - Vercel detectará automáticamente que es un proyecto Next.js
+4. **Configuración del proyecto**:
+   - **Project Name**: `tu-portafolio-ia` (o el nombre que prefieras)
+   - **Framework Preset**: Next.js (detectado automáticamente)
+   - **Root Directory**: `./` (por defecto)
+5. **Clic en "Deploy"**
+6. **La URL quedará como**: `https://tu-portafolio-ia.vercel.app/`
+
+### 🔍 Verificación:
+
+- El deploy toma 1-2 minutos
+- Vercel te mostrará la URL una vez completado
+- Cada push a `main` actualizará automáticamente el sitio
+
+---
+
+## 3. Completar el contenido mínimo hoy
+
+### A. Portada / About
+
+**Elementos esenciales**:
+- **Nombre** y breve bio (2–3 líneas)
+- **Links** (LinkedIn/GitHub)
+- **Objetivo del curso** en tus palabras (1–2 líneas)
+
+**Ejemplo de estructura**:
+```markdown
+# Tu Nombre
+
+Breve descripción personal y objetivos profesionales.
+
+**Objetivo del curso**: Aprender análisis de datos con Python para generar insights empresariales.
+
+[GitHub](https://github.com/tu-usuario) | [LinkedIn](https://linkedin.com/in/tu-perfil)
+```
+
+### B. Prácticas relacionadas
+
+**Links a prácticas anteriores**:
+- Link a la [Práctica 1: Exploración del dataset Iris](./practica1-exploracion-iris)
+- Link a la [Práctica 2: Análisis exploratorio del dataset Iris](./practica2-eda-iris)
+
+**Contenido sugerido**:
+- Capturas o gráficos clave (pairplot, correlaciones, boxplots)
+- 3–5 hallazgos iniciales y cómo cargaste los datos
+- Metodología utilizada (seaborn/sklearn/Kaggle/URL)
+
+### C. Visualizaciones e insights de Iris
+
+**Incluye**:
+- 1–2 visualizaciones destacadas de tu EDA
+- Redacta 2–3 observaciones concretas por gráfico
+- Lista breve de próximos pasos/mejoras para el análisis
+
+**Ejemplo de estructura**:
+```markdown
+## Análisis del Dataset Iris
+
+### Visualización 1: Pairplot de Variables
+![Pairplot Iris](./images/iris-pairplot.png)
+
+**Observaciones**:
+- Setosa se separa claramente de las otras especies
+- Petal length y width muestran la mayor discriminación
+- Virginica y versicolor tienen cierta superposición
+
+### Próximos pasos
+- Implementar clustering para validar grupos naturales
+- Análisis de componentes principales (PCA)
+- Modelos de clasificación supervisada
+```
+
+### D. "Próximos pasos" (backlog personal)
+
+**Sección para planificar**:
+- Próximas prácticas a completar
+- Proyectos personales de análisis de datos
+- Herramientas a aprender
+- Datasets de interés
+
+---
+
+## 4. Publicar cambios (5 min)
+
+### Workflow de publicación:
+
+1. **Hacé commit + push** de tus cambios a la rama `main`
+2. **Vercel detectará automáticamente** los cambios y hará un nuevo deploy
+3. **Probá tu sitio**: `https://tu-portafolio-ia.vercel.app/`
+
+### 💡 Tips:
+
+- **Mensaje de commit sugerido**: `feat: publicar estructura inicial del portafolio`
+- Vercel te enviará un email cuando el deploy esté listo
+- El sitio se actualiza automáticamente en 1-2 minutos
+- Puedes ver el progreso del deploy en el dashboard de Vercel
+
+---
+
+## 5. Entrega en WebAsignatura (2 min)
+
+### Pasos finales:
+
+1. **En la tarea "Portafolio – Práctica 2"**
+2. **Pega la URL pública** de tu portafolio (la de Vercel)
+3. **Asegurate** de que cualquier persona con el link pueda verlo
+
+### ✅ Verificación final:
+
+- Confirmá que el repo sea público
+- Verificá que la URL sea de Vercel (no de GitHub)
+- Probá el acceso desde un navegador incógnito
+
+---
+
+## ✅ Checklist
+
+- [ ] Repo creado desde template (no fork)
+- [ ] Vercel conectado con el repositorio y deploy exitoso
+- [ ] Secciones mínimas completadas y visibles
+- [ ] Links a la práctica de exploración de Iris funcionan
+- [ ] URL entregada en WebAsignatura
+
+---
+
+## 🧯 Errores comunes
+
+### El deploy falla en Vercel
+- Ve al dashboard de Vercel y revisa los logs del deploy
+- Verifica que el proyecto esté configurado como Next.js
+- Revisa que no haya errores de sintaxis en los archivos MDX
+
+### No ves el sitio
+- Esperá 1-2 minutos después del deploy
+- Verifica que la URL sea correcta (formato `*.vercel.app`)
+- Revisa que el repositorio esté conectado correctamente
+
+### Errores de build
+- Verifica que los archivos MDX tengan la sintaxis correcta
+- Revisa que las imágenes estén en la carpeta `public/`
+- Asegúrate de que los links internos funcionen
+- Verifica que las dependencias estén instaladas correctamente
+
+---
+
+## 🚀 Adaptación para Fumadocs + Vercel
+
+### Diferencias clave con MkDocs:
+
+1. **Estructura de archivos**: Fumadocs usa la estructura de Next.js
+2. **Sintaxis MDX**: Soporte completo para componentes React
+3. **Configuración**: Se maneja en `source.config.ts` y `next.config.mjs`
+4. **Deploy**: Automático con Vercel (no GitHub Actions)
+
+### Archivos importantes en Fumadocs:
+
+```
+├── app/
+│   ├── (home)/
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   └── docs/
+│       ├── [[...slug]]/
+│       │   └── page.tsx
+│       └── layout.tsx
+├── content/docs/
+│   ├── index.mdx
+│   └── practica2-portafolio-vercel.mdx
+├── source.config.ts
+└── next.config.mjs
+```
+
+### Configuración de Vercel:
+
+Vercel detecta automáticamente proyectos Next.js y:
+- Instala dependencias automáticamente
+- Ejecuta el build de Next.js
+- Despliega a su CDN global
+- Actualiza automáticamente en cada push a `main`
+
+---
+
+## 📚 Referencias y recursos
+
+- **Vercel Documentation**: https://vercel.com/docs
+- **Fumadocs Documentation**: https://fumadocs.vercel.app/
+- **Next.js Documentation**: https://nextjs.org/docs
+- **MDX Documentation**: https://mdxjs.com/
+- **Template del curso**: https://github.com/ucudal/ia-portfolio-template
+
+---
+
+## 🎉 ¡Felicitaciones!
+
+Has completado la configuración de tu portafolio profesional con Vercel y Fumadocs. Tu sitio web está ahora disponible públicamente y se actualizará automáticamente con cada push que hagas al repositorio.
+
+**Próximo paso**: Continúa con las siguientes prácticas y mantén tu portafolio actualizado con tus nuevos proyectos y análisis.
