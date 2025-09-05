@@ -51,7 +51,7 @@ export default function HomePage() {
               <div className="text-4xl mb-4">🐍</div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Python & Pandas</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Análisis de datos, Machine Learning y visualizaciones con librerías especializadas
+                Análisis exploratorio de datos, EDA y visualizaciones con Pandas, NumPy y Seaborn
               </p>
             </div>
             
@@ -64,10 +64,10 @@ export default function HomePage() {
             </div>
             
             <div className="text-center p-6 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800">
-              <div className="text-4xl mb-4">🤖</div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Machine Learning</h3>
+              <div className="text-4xl mb-4">📈</div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Análisis de Datos</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Modelos predictivos, análisis exploratorio y pipelines automatizados con Prefect
+                Exploración de datasets, estadísticas descriptivas y detección de patrones
               </p>
             </div>
           </div>
