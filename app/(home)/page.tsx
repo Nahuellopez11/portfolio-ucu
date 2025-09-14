@@ -8,7 +8,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto text-center">
           <div className="mb-8">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-              👋 ¡Hola! Soy{' '}
+              ¡Hola! Soy{' '}
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Nahuel López
               </span>
@@ -43,7 +43,7 @@ export default function HomePage() {
       <section className="py-16 px-4 bg-white dark:bg-gray-900">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
-            🚀 Mis Especialidades
+            Mis Especialidades
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
