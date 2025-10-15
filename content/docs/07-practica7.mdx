@@ -1,14 +1,19 @@
 ---
-title: Práctica 7
-description: Desenmascarando sesgos algorítmicos - Análisis ético con Fairlearn en datasets históricos
+title: "Práctica 7"
+date: 2025-09-13
+order: 7
 ---
 
-# Práctica 7: Desenmascarando sesgos algorítmicos: análisis ético con Fairlearn en datasets históricos
+# Práctica 7: Desenmascarando sesgos algorítmicos
 
+- **Autores:** Joaquín Batista, Milagros Cancela, Valentín Rodríguez, Alexia Aurrecoechea, Nahuel López (G1)
+- **Fecha:** Septiembre 2025
+- **Entorno:** Python + Fairlearn + Scikit-learn + Pandas
+- **Datasets:** Boston Housing, Titanic, Ames Housing
 
-**Notebook completo:** [Práctica7.ipynb](#)
+## 🎯 Objetivo
 
-## Objetivos de Aprendizaje
+El propósito de esta práctica es realizar un **análisis ético completo de sesgos algorítmicos** en datasets históricos utilizando Fairlearn. A través de casos reales, exploramos la detección, análisis y corrección de sesgos en modelos de machine learning.
 
 - **DETECTAR** sesgo histórico en datasets reales (Boston Housing + Titanic)
 - **ANALIZAR** impacto del sesgo en predicciones de modelos
@@ -16,53 +21,11 @@ description: Desenmascarando sesgos algorítmicos - Análisis ético con Fairlea
 - **EVALUAR** cuándo detectar vs cuándo intentar corregir automáticamente
 - **DESARROLLAR** criterios éticos para deployment responsable
 
-## Metodología
+---
 
-### Parte I - Boston Housing: DETECTAR Sesgo Histórico
+## 🔍 Análisis de Sesgo Racial en Boston Housing
 
-- Analizar sesgo oculto en variable B (proporción afroamericana)
-- Cuantificar impacto del sesgo en predicciones (regresión)
-- Analizar correlaciones y distribuciones por grupos raciales
-- **No corregir** → enfoque en detección y análisis crítico
-
-### Parte II - Titanic: DETECTAR + CORREGIR Sesgo Sistemático
-
-- Detectar sesgo género/clase en protocolo "Women and Children First"
-- Analizar interseccionalidad (género × clase social)
-- Aplicar Fairlearn para corrección (clasificación natural)
-
-### Parte III - Ames Housing: Aplicación Práctica
-
-- Análisis de sesgo geográfico y socioeconómico
-- Evaluación de variables proxy problemáticas
-
-## Resultados Principales
-
-### Boston Housing Dataset
-
-- **Brecha racial detectada:** -2.4% entre grupos de alta y baja proporción afroamericana
-- **Correlación variable B:** 0.333 con precios de vivienda
-- **Decisión ética:** Uso exclusivamente educativo, no para producción
-- **Justificación:** Variable históricamente sesgada, inapropiada para modelos de producción
-
-### Titanic Dataset
-
-- **Brecha de género:** 54.8% diferencia en supervivencia (mujeres vs hombres)
-- **Brecha de clase:** 41.3% diferencia entre primera y tercera clase
-- **Aplicación Fairlearn:**
-  - Performance loss: 6.2%
-  - Mejora en Demographic Parity: 0.051
-- **Recomendación:** Evaluar caso por caso el trade-off precisión vs equidad
-
-### Ames Housing Dataset
-
-- **Brecha geográfica:** 45% entre barrios más y menos caros
-- **Brecha temporal:** 28% diferencia entre casas nuevas vs antiguas
-- **Riesgo:** Alto potencial de perpetuar desigualdades en contextos hipotecarios
-
-## Análisis Profundo de Sesgo - Detección Sin Corrección
-
-### Visualización del Sesgo Racial en Boston Housing
+### Visualización del Sesgo Histórico
 
 La siguiente visualización muestra la distribución de precios de vivienda agrupada por proporción de población afroamericana, revelando patrones claros de sesgo histórico:
 
@@ -82,29 +45,9 @@ df = pd.DataFrame(boston.data, columns=boston.feature_names)
 df['price'] = boston.target
 
 # Crear grupos raciales basados en variable B (proporción afroamericana)
-# B: proporción de población afroamericana por área censal
 df['grupo_racial'] = pd.cut(df['B'], 
                            bins=[0, df['B'].median(), df['B'].max()], 
                            labels=['Baja_prop_afroam', 'Alta_prop_afroam'])
-
-# Crear visualización comparativa
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
-
-# Histograma de distribución por grupo
-df.groupby('grupo_racial')['price'].hist(alpha=0.7, ax=ax1, bins=20)
-ax1.set_title('Distribución de Precios por Grupo Racial')
-ax1.set_xlabel('Precio (miles $)')
-ax1.set_ylabel('Frecuencia')
-ax1.legend(['Alta_prop_afroam', 'Baja_prop_afroam'])
-
-# Boxplot comparativo
-sns.boxplot(data=df, x='grupo_racial', y='price', ax=ax2)
-ax2.set_title('Precios por Grupo Racial')
-ax2.set_xlabel('Grupo Racial')
-ax2.set_ylabel('Precio (miles $)')
-
-plt.tight_layout()
-plt.show()
 
 # Análisis estadístico del sesgo
 print("=== ANÁLISIS DE SESGO RACIAL ===")
@@ -121,28 +64,45 @@ print(f"Correlación B-precio: {df['B'].corr(df['price']):.3f}")
 
 ### Interpretación Crítica
 
-#### 🔍 Hallazgos Clave:
+**🔍 Hallazgos Clave:**
+- **Sesgo sistemático**: Las áreas con mayor proporción afroamericana muestran precios consistentemente menores
+- **Distribución sesgada**: El grupo de "alta proporción afroamericana" se concentra en el rango de precios bajos
+- **Correlación negativa**: Variable B muestra correlación negativa con precios (-0.385)
 
-- **Sesgo sistemático:** Las áreas con mayor proporción afroamericana muestran precios consistentemente menores
-- **Distribución sesgada:** El grupo de "alta proporción afroamericana" se concentra en el rango de precios bajos
-- **Correlación negativa:** Variable B muestra correlación negativa con precios (-0.385)
-
-#### ⚠️ Implicaciones Éticas:
-
+**⚠️ Implicaciones Éticas:**
 - Este sesgo refleja discriminación histórica en políticas habitacionales
 - La variable B actúa como proxy racial problemático para predicciones
 - No es apropiado intentar "corregir" este sesgo automáticamente sin abordar las causas estructurales
 
-#### 🎯 Decisión de Detección vs Corrección:
+---
 
-En este caso, **DETECTAR** es más valioso que corregir porque:
+## 🚢 Análisis de Sesgo en Titanic Dataset
 
-- Visibiliza el problema histórico real
-- Documenta la magnitud del sesgo para investigación
-- Evita perpetuar discriminación en nuevos modelos
-- Informa decisiones éticas sobre uso del dataset
+### Detección de Sesgo de Género y Clase
 
-## Framework Ético Desarrollado
+**Brecha de género**: 54.8% diferencia en supervivencia (mujeres vs hombres)
+**Brecha de clase**: 41.3% diferencia entre primera y tercera clase
+
+### Aplicación de Fairlearn para Corrección
+
+**Resultados de la corrección:**
+- **Performance loss**: 6.2%
+- **Mejora en Demographic Parity**: 0.051
+- **Recomendación**: Evaluar caso por caso el trade-off precisión vs equidad
+
+---
+
+## 🏠 Análisis de Sesgo en Ames Housing
+
+### Sesgos Geográficos y Socioeconómicos
+
+**Brecha geográfica**: 45% entre barrios más y menos caros
+**Brecha temporal**: 28% diferencia entre casas nuevas vs antiguas
+**Riesgo**: Alto potencial de perpetuar desigualdades en contextos hipotecarios
+
+---
+
+## ⚖️ Framework Ético Desarrollado
 
 ### Cuándo DETECTAR únicamente
 - Sesgo histórico complejo (Boston racial bias)
@@ -159,21 +119,25 @@ En este caso, **DETECTAR** es más valioso que corregir porque:
 - Sesgo severo no corregible
 - Falta de transparencia en decisiones
 
-## Insights Técnicos
+---
 
-- **Detección vs Corrección:** Cada estrategia es apropiada para diferentes contextos
-- **Sesgo histórico:** Más complejo de corregir que el sesgo sistemático
-- **Context matters:** El dominio determina la tolerancia al sesgo
-- **Fairlearn limitations:** No todas las situaciones de sesgo son corregibles automáticamente
+## 🧠 Insights Técnicos
 
-## Herramientas Utilizadas
+### Detección vs Corrección
+- **Detección**: Cada estrategia es apropiada para diferentes contextos
+- **Sesgo histórico**: Más complejo de corregir que el sesgo sistemático
+- **Context matters**: El dominio determina la tolerancia al sesgo
+- **Fairlearn limitations**: No todas las situaciones de sesgo son corregibles automáticamente
 
-- **Fairlearn:** Biblioteca principal para detección y corrección de sesgo
-- **ExponentiatedGradient:** Algoritmo de corrección in-processing
-- **DemographicParity:** Constraint de equidad demográfica
-- **MetricFrame:** Análisis de métricas por grupos sensibles
+### Herramientas Utilizadas
+- **Fairlearn**: Biblioteca principal para detección y corrección de sesgo
+- **ExponentiatedGradient**: Algoritmo de corrección in-processing
+- **DemographicParity**: Constraint de equidad demográfica
+- **MetricFrame**: Análisis de métricas por grupos sensibles
 
-## Reflexiones Éticas Críticas
+---
+
+## 💡 Reflexiones Éticas Críticas
 
 ### ¿Cuándo es más valioso detectar que corregir automáticamente?
 
@@ -187,19 +151,23 @@ La transparencia debe priorizarse frente a la utilidad. Un modelo con sesgo cono
 
 Debemos identificarlos, explicarlos y advertir sobre sus implicancias. Si no se pueden eliminar, corresponde evitar su uso en contextos sensibles. La responsabilidad del data scientist es también social, no solo técnica.
 
-## Extensiones y Próximos Pasos
+---
+
+## 🚀 Extensiones y Próximos Pasos
 
 ### Algoritmos Adicionales de Fairness
-- **GridSearch:** Búsqueda exhaustiva de parámetros justos
-- **ThresholdOptimizer:** Post-processing para optimizar umbrales
-- **CorrelationRemover:** Pre-processing para eliminar correlaciones
+- **GridSearch**: Búsqueda exhaustiva de parámetros justos
+- **ThresholdOptimizer**: Post-processing para optimizar umbrales
+- **CorrelationRemover**: Pre-processing para eliminar correlaciones
 
 ### Constraints Alternativos
-- **EqualizedOdds:** Igualdad de oportunidades
-- **TruePositiveRateParity:** Paridad en True Positive Rate
-- **FalsePositiveRateParity:** Paridad en False Positive Rate
+- **EqualizedOdds**: Igualdad de oportunidades
+- **TruePositiveRateParity**: Paridad en True Positive Rate
+- **FalsePositiveRateParity**: Paridad en False Positive Rate
 
-## Impacto y Aplicaciones
+---
+
+## 📈 Impacto y Aplicaciones
 
 Esta práctica demuestra la importancia crítica de:
 
@@ -210,23 +178,45 @@ Esta práctica demuestra la importancia crítica de:
 
 El framework desarrollado es aplicable a cualquier dominio donde la equidad sea una consideración importante, especialmente en sectores como finanzas, recursos humanos, justicia y salud.
 
-## Recursos Interesantes
+---
 
-- **Fairlearn Documentation:** [fairlearn.org](https://fairlearn.org)
+## 🛠️ Herramientas y Tecnologías
 
-## Datasets Utilizados
+### Librerías Utilizadas
+- **Fairlearn**: Detección y corrección de sesgo algorítmico
+- **scikit-learn**: Modelos base para análisis de sesgo
+- **pandas**: Manipulación y análisis de datos
+- **matplotlib/seaborn**: Visualizaciones de sesgo
+- **numpy**: Operaciones numéricas
 
-### Boston Housing Dataset:
-- Disponible en scikit-learn: `sklearn.datasets.load_boston()`
-- Alternativa: UCI ML Repository - Housing
-- **⚠️ Warning ÉTICO:** Dataset con sesgo racial histórico, uso solo educativo
+### Datasets Utilizados
+- **Boston Housing**: Sesgo racial histórico (uso educativo únicamente)
+- **Titanic**: Sesgo de género y clase social
+- **Ames Housing**: Sesgo geográfico y socioeconómico
 
-### Titanic Dataset:
-- Kaggle - Titanic Dataset
-- Disponible en seaborn: `sns.load_dataset('titanic')`
-- Archivo CSV directo: titanic.csv
+---
 
-### Ames Housing Dataset:
-- Kaggle - House Prices Dataset
-- OpenML - Ames Housing
-- Repositorio original: Ames Housing Data
+## 📚 Conclusiones y Aprendizajes
+
+### Hallazgos Principales
+
+1. **Sesgo es ubicuo**: Presente en la mayoría de datasets históricos
+2. **Contexto importa**: La corrección automática no siempre es apropiada
+3. **Transparencia es clave**: Documentar sesgos es más importante que ocultarlos
+4. **Responsabilidad social**: Los data scientists tienen obligaciones éticas
+
+### Lecciones Aprendidas
+
+- **Detección primero**: Siempre identificar sesgos antes de intentar corregirlos
+- **Múltiples perspectivas**: Considerar diferentes grupos afectados
+- **Trade-offs reales**: Equidad vs precisión requiere decisiones conscientes
+- **Documentación exhaustiva**: Registrar todas las decisiones éticas
+
+---
+
+## 🔗 Recursos y Referencias
+
+- **Fairlearn Documentation**: [fairlearn.org](https://fairlearn.org/)
+- **Boston Housing Dataset**: [UCI ML Repository](https://archive.ics.uci.edu/ml/datasets/Housing)
+- **Titanic Dataset**: [Kaggle Titanic](https://www.kaggle.com/c/titanic)
+- **Ética en ML**: [ACM Code of Ethics](https://www.acm.org/code-of-ethics)
