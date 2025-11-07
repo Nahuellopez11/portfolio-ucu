@@ -12,7 +12,6 @@ order: 9
 - **Entorno:** Python · Pandas · Scikit-learn · Category Encoders · Matplotlib · Seaborn
 - **Dataset:** Adult Income (US Census 1994) · 32 561 registros
 - **Notebook:** [Práctica 9 - Encoding Avanzado y Target Encoding](https://example.com)
-- **Tiempo de lectura:** ~7 minutos
 
 ---
 
@@ -46,7 +45,7 @@ El dataset proviene del UCI Machine Learning Repository y busca predecir si una 
 
 **Problema de dimensionalidad:** Un One-Hot Encoding completo generaría 94 columnas (≈11.8× la dimensionalidad original), arriesgando la maldición de la dimensionalidad.
 
-![Cardinalidad de variables categóricas](/practico%209/cardinalidad_variables_cat.png)
+![Cardinalidad de variables categóricas](/practico9/cardinalidad_variables_cat.png)
 
 ---
 
@@ -214,7 +213,7 @@ X_test_binary = binary_encoder.transform(X_test)
 - **Insights:** smoothing alto reduce overfitting en categorías raras; smoothing bajo captura señal en categorías frecuentes.
 - **Fórmula:** `(count * mean + smoothing * global_mean) / (count + smoothing)`
 
-![Experimento de smoothing para Target Encoding](/practico%209/smoothing_experiment.png)
+![Experimento de smoothing para Target Encoding](/practico9/smoothing_experiment.png)
 
 ---
 
@@ -241,11 +240,11 @@ X_test_binary = binary_encoder.transform(X_test)
 - Las categóricas aportan menos de forma individual, pero algunas destacan (estado civil, género).
 - El estado civil es la variable categórica más predictiva.
 
-![Top features más importantes del pipeline branched](/practico%209/Top_Features_mas_importantes.png)
+![Top features más importantes del pipeline branched](/practico9/Top_Features_mas_importantes.png)
 
-![Análisis de features codificadas](/practico%209/analisis_de_features_codificadas.png)
+![Análisis de features codificadas](/practico9/analisis_de_features_codificadas.png)
 
-![Comparación de importancia por método](/practico%209/comparacion_importancia_por_metodo.png)
+![Comparación de importancia por método](/practico9/comparacion_importancia_por_metodo.png)
 
 ---
 
@@ -260,7 +259,7 @@ X_test_binary = binary_encoder.transform(X_test)
 | Target Encoding | 80.29 % | 82.74 % | 55.51 % | **6** 📏 | 0.20 |
 | Pipeline branched | 84.72 % | 89.98 % | 66.24 % | 30 | 0.19 |
 
-![Comparación visual de métodos de encoding](/practico%209/comparacion_metodos_de_encoding.png)
+![Comparación visual de métodos de encoding](/practico9/comparacion_metodos_de_encoding.png)
 
 ### Mejores métodos por métrica
 
