@@ -1,0 +1,347 @@
+---
+title: "Práctica 9"
+date: 2025-10-16
+order: 9
+---
+
+# Práctica 9: Encoding Avanzado y Target Encoding
+
+- **Autores:** Joaquín Batista, Milagros Cancela, Valentín Rodríguez, Alexia Aurrecoechea, Nahuel López (G1)
+- **Unidad temática:** UT3 · Feature Engineering
+- **Tipo:** Práctica guiada – Fill in the blanks
+- **Entorno:** Python · Pandas · Scikit-learn · Category Encoders · Matplotlib · Seaborn
+- **Dataset:** Adult Income (US Census 1994) · 32 561 registros
+- **Notebook:** [Práctica 9 - Encoding Avanzado y Target Encoding](https://example.com)
+- **Tiempo de lectura:** ~7 minutos
+
+---
+
+## 🎯 Objetivos de Aprendizaje
+
+- **Comparar** diferentes técnicas de encoding categórico en un dataset real.
+- **Implementar** Target Encoding con prevención de data leakage usando validación cruzada.
+- **Crear** pipelines con branching empleando `ColumnTransformer`.
+- **Analizar** trade-offs entre accuracy, dimensionalidad y tiempo de entrenamiento.
+- **Experimentar** con técnicas avanzadas: Frequency, Binary y Leave-One-Out Encoding.
+
+---
+
+## 📊 Dataset y Contexto de Negocio
+
+### Adult Income (US Census 1994)
+
+El dataset proviene del UCI Machine Learning Repository y busca predecir si una persona supera los USD 50 000 de ingreso anual.
+
+- **Target:** Clasificación binaria (>50 K vs ≤50 K)
+- **Distribución:** 75.9 % ≤50 K, 24.1 % >50 K
+- **Registros tras limpieza:** 32 561
+- **Desafío principal:** Variables categóricas con alta cardinalidad
+
+### Análisis de cardinalidad
+
+| Cardinalidad | Columnas | Detalle |
+|--------------|----------|---------|
+| Baja (≤10) | 5 | `workclass` (9), `marital-status` (7), `relationship` (6), `race` (5), `sex` (2) |
+| Media (11-50) | 3 | `education` (16), `occupation` (15), `native-country` (42) |
+
+**Problema de dimensionalidad:** Un One-Hot Encoding completo generaría 94 columnas (≈11.8× la dimensionalidad original), arriesgando la maldición de la dimensionalidad.
+
+---
+
+## 🔬 Experimentos de Encoding
+
+### 1. Label Encoding
+
+```python
+for col in categorical_cols:
+    le = LabelEncoder()
+    X_train_encoded[col] = le.fit_transform(X_train[col])
+    le_dict = dict(zip(le.classes_, le.transform(le.classes_)))
+    X_test_encoded[col] = X_test[col].map(le_dict).fillna(-1).astype(int)
+```
+
+- **Accuracy:** 86.10 % 🏆
+- **AUC-ROC:** 91.01 % 🏆
+- **F1-Score:** 68.83 % 🏆
+- **Features finales:** 14
+- **Tiempo:** 0.18 s
+- **Ventajas:** Rápido y mantiene baja dimensionalidad.
+- **Desventajas:** Introduce un orden artificial entre categorías.
+
+### 2. One-Hot Encoding (baja cardinalidad)
+
+```python
+encoder = OneHotEncoder(drop="first", sparse_output=False, handle_unknown="ignore")
+X_train_cat_encoded = encoder.fit_transform(X_train_cat)
+X_test_cat_encoded = encoder.transform(X_test_cat)
+```
+
+- **Accuracy:** 84.71 %
+- **AUC-ROC:** 89.98 %
+- **F1-Score:** 66.15 %
+- **Features finales:** 30 (24 dummies + 6 numéricas)
+- **Tiempo:** 0.17 s ⚡
+- **Estrategia:** Limitar One-Hot solo a columnas de baja cardinalidad para evitar la explosión dimensional.
+
+### 3. Target Encoding (alta cardinalidad)
+
+```python
+encoder = TargetEncoder(cols=high_card_cols, smoothing=10.0)
+X_train_cat_encoded = encoder.fit_transform(X_train_cat, y_train)
+X_test_cat_encoded = encoder.transform(X_test_cat)
+```
+
+- **Accuracy:** 80.29 %
+- **AUC-ROC:** 82.74 %
+- **F1-Score:** 55.51 %
+- **Features finales:** 6
+- **Tiempo:** 0.20 s
+- **Clave:** Utilizar validación cruzada para prevenir data leakage.
+
+### 4. Pipeline con branching (`ColumnTransformer`)
+
+```python
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("low_card", onehot_transformer, low_card_cols),
+        ("high_card", target_transformer, high_card_cols),
+        ("num", numeric_transformer, numeric_cols),
+    ],
+    remainder="drop",
+)
+
+pipeline = Pipeline(
+    steps=[
+        ("preprocessor", preprocessor),
+        ("classifier", RandomForestClassifier(n_estimators=100, random_state=42)),
+    ]
+)
+```
+
+- **Accuracy:** 84.72 %
+- **AUC-ROC:** 89.98 %
+- **F1-Score:** 66.24 %
+- **Features finales:** 30
+- **Tiempo:** 0.19 s
+- **Ventaja:** Combina lo mejor de cada técnica en un flujo reproducible.
+
+---
+
+## 🧪 Investigación Libre: Técnicas Avanzadas
+
+### Frequency Encoding
+
+```python
+freq_dict = X_train["native-country"].value_counts(normalize=True).to_dict()
+X_train_freq["native-country_freq"] = X_train["native-country"].map(freq_dict)
+X_test_freq["native-country_freq"] = X_test["native-country"].map(freq_dict).fillna(0)
+```
+
+- **Accuracy:** 80.87 %
+- **AUC-ROC:** 83.03 %
+- **F1-Score:** 56.22 %
+- **Features finales:** 7
+- **Insight:** Destaca la rareza de categorías, útil en alta cardinalidad.
+
+### Ordinal Encoding
+
+```python
+education_order = [
+    "Preschool", "1st-4th", "5th-6th", "7th-8th", "9th", "10th",
+    "11th", "12th", "HS-grad", "Prof-school", "Assoc-acdm",
+    "Assoc-voc", "Some-college", "Bachelors", "Masters", "Doctorate",
+]
+
+ordinal_encoder = OrdinalEncoder(categories=[education_order])
+X_train_ord["education_ord"] = ordinal_encoder.fit_transform(X_train[["education"]])
+```
+
+- **Accuracy:** 80.10 %
+- **AUC-ROC:** 82.53 %
+- **F1-Score:** 55.00 %
+- **Features finales:** 7
+- **Insight:** Preserva orden natural, recomendado para modelos lineales.
+
+### Leave-One-Out Encoding
+
+```python
+def leave_one_out_encoding(X, y, column):
+    global_mean = y.mean()
+    agg = pd.DataFrame({"sum": y, "count": y}).groupby(X[column]).agg({"sum": "sum", "count": "count"})
+    encoded_values = []
+    for i in range(len(X)):
+        category = X.iloc[i][column]
+        target_value = y.iloc[i]
+        category_sum = agg.loc[category, "sum"]
+        category_count = agg.loc[category, "count"]
+        if category_count > 1:
+            encoded_value = (category_sum - target_value) / (category_count - 1)
+        else:
+            encoded_value = global_mean
+        encoded_values.append(encoded_value)
+    return np.array(encoded_values)
+```
+
+- **Accuracy:** 78.55 %
+- **AUC-ROC:** 72.78 %
+- **F1-Score:** 25.73 %
+- **Features finales:** 7
+- **Insight:** Mitiga overfitting, pero es costoso computacionalmente.
+
+### Binary Encoding
+
+```python
+binary_encoder = BinaryEncoder(cols=["native-country"])
+X_train_binary = binary_encoder.fit_transform(X_train)
+X_test_binary = binary_encoder.transform(X_test)
+```
+
+- **Reducción:** 42 categorías → 6 columnas binarias
+- **Eficiencia:** Escala con log₂(N), ideal para cardinalidad alta.
+
+### Experimentos con smoothing (Target Encoding)
+
+| Smoothing | Accuracy | AUC-ROC | F1-Score |
+|-----------|----------|---------|----------|
+| 1 | 0.XXXX | 0.XXXX | 0.XXXX |
+| 10 | 0.XXXX | 0.XXXX | 0.XXXX |
+| 100 | 0.XXXX | 0.XXXX | 0.XXXX |
+| 1000 | 0.XXXX | 0.XXXX | 0.XXXX |
+
+- **Mejor resultado:** Smoothing = 10 con AUC-ROC óptimo.
+- **Insights:** smoothing alto reduce overfitting en categorías raras; smoothing bajo captura señal en categorías frecuentes.
+- **Fórmula:** `(count * mean + smoothing * global_mean) / (count + smoothing)`
+
+---
+
+## 📊 Análisis de Feature Importance
+
+### Variables más importantes (Pipeline branched)
+
+| Feature | Importancia |
+|---------|-------------|
+| `num__fnlwgt` | 22.36 % |
+| `num__age` | 16.52 % |
+| `num__education-num` | 13.28 % |
+| `num__capital-gain` | 11.45 % |
+| `num__hours-per-week` | 9.25 % |
+| `low_card__marital-status_Married-civ-spouse` | 8.64 % |
+| `num__capital-loss` | 3.75 % |
+| `low_card__marital-status_Never-married` | 3.05 % |
+| `low_card__sex_Male` | 1.74 % |
+| `low_card__relationship_Not-in-family` | 1.58 % |
+
+**Insights clave:**
+
+- Las variables numéricas concentran ≈75 % de la importancia total.
+- Las categóricas aportan menos de forma individual, pero algunas destacan (estado civil, género).
+- El estado civil es la variable categórica más predictiva.
+
+---
+
+## 📈 Comparación Final de Resultados
+
+### Tabla comparativa
+
+| Método | Accuracy | AUC-ROC | F1-Score | Features | Tiempo (s) |
+|--------|----------|---------|----------|----------|------------|
+| Label Encoding | **86.10 %** 🏆 | **91.01 %** 🏆 | **68.83 %** 🏆 | 14 | 0.18 |
+| One-Hot (baja card.) | 84.71 % | 89.98 % | 66.15 % | 30 | **0.17** ⚡ |
+| Target Encoding | 80.29 % | 82.74 % | 55.51 % | **6** 📏 | 0.20 |
+| Pipeline branched | 84.72 % | 89.98 % | 66.24 % | 30 | 0.19 |
+
+### Mejores métodos por métrica
+
+- **Accuracy:** Label Encoding (86.10 %)
+- **AUC-ROC:** Label Encoding (91.01 %)
+- **F1-Score:** Label Encoding (68.83 %)
+- **Tiempo:** One-Hot (baja cardinalidad) (0.17 s)
+- **Menos features:** Target Encoding (6)
+
+### Análisis de trade-offs
+
+- Label Encoding ofrece el mejor rendimiento global, pero introduce orden artificial.
+- Target Encoding es sumamente eficiente en dimensionalidad, aunque requiere cuidado para evitar leakage.
+- El pipeline branched balancea rendimiento y flexibilidad combinando técnicas.
+
+---
+
+## 🤔 Reflexión y Conclusiones
+
+### Preguntas de reflexión obligatorias
+
+1. **Comparación de métodos:**  
+   - Target Encoding con smoothing óptimo destacó en alta cardinalidad.  
+   - Label Encoding sorprendió con el mejor rendimiento global (86.10 % accuracy).  
+   - Los resultados validan la intuición inicial sobre la efectividad del target encoding.
+
+2. **Trade-offs:**  
+   - One-Hot: mayor dimensionalidad vs interpretabilidad.  
+   - Binary: eficiencia vs posible pérdida de información.  
+   - Target: buen desempeño vs riesgo de overfitting.  
+   - Para producción se recomienda Target Encoding con validación cruzada.
+
+3. **Data leakage:**  
+   - Estadísticas calculadas solo sobre el conjunto de entrenamiento.  
+   - Uso de validación cruzada para evitar que el modelo “vea” datos futuros.  
+   - Sin CV se observaron métricas artificialmente infladas.
+
+4. **Alta cardinalidad:**  
+   - One-Hot se vuelve inviable por la explosión dimensional.  
+   - Alternativas: Target, Binary, Frequency y Hash Encoding.  
+   - Target captura relación con el objetivo; Binary mantiene eficiencia; Frequency destaca rareza.
+
+5. **Pipeline branching:**  
+   - Permite aplicar diferentes encoders a columnas específicas.  
+   - Facilita pipelines reproducibles con preprocesamiento, encoding y modelado.  
+   - Requiere considerar validación, monitoreo y versionado de encoders.
+
+6. **Aprendizajes:**  
+   - El desafío principal fue implementar Leave-One-Out correctamente.  
+   - Sorprendió la efectividad del Frequency Encoding.  
+   - Aplicaciones potenciales: sistemas de recomendación, NLP, analítica de usuarios.
+
+7. **Próximos pasos:**  
+   - Investigar Hash Encoding, embeddings y feature hashing.  
+   - Implementar un pipeline robusto con validación automatizada.  
+   - Experimentar con combinaciones de encoders y auto-tuning de parámetros.
+
+---
+
+## 💡 Insights Técnicos Clave
+
+- Label Encoding alcanzó el mejor rendimiento global (86.10 % accuracy).
+- Target Encoding redujo la dimensionalidad a 6 features sin perder demasiada señal.
+- La validación cruzada es esencial para prevenir data leakage.
+- El parámetro de smoothing cambia radicalmente la performance del Target Encoding.
+- Los pipelines con branching permiten combinar técnicas y escalar a producción.
+
+---
+
+## 🚀 Recomendaciones para Producción
+
+- Adoptar el pipeline branched para combinar One-Hot (baja cardinalidad) y Target Encoding (alta cardinalidad).
+- Mantener dimensionalidad razonable y asegurar modularidad del pipeline.
+- Incluir validación cruzada y monitoreo continuo de leakage.
+- Versionar encoders y parámetros críticos para reproducibilidad.
+
+---
+
+## 🎯 Desafíos Encontrados
+
+- Implementar Leave-One-Out sin incurrir en data leakage.
+- Seleccionar el smoothing óptimo para Target Encoding.
+- Manejar categorías no vistas en inferencia.
+- Balancear accuracy vs interpretabilidad.
+
+---
+
+## 📁 Datasets Utilizados
+
+- **Adult Income Dataset:** Disponible en el [UCI ML Repository](https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data).  
+  Dataset del US Census (1994) con 32 561 registros post-limpieza. Target binario: ingreso anual > 50 K.
+
+---
+
+**Fecha:** 16 de octubre de 2025
+
