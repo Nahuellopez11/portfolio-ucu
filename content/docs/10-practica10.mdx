@@ -4,7 +4,192 @@ date: 2025-10-23
 order: 10
 ---
 
-# Práctica 10
+# Práctica 10: PCA y Feature Selection
 
-Contenido pendiente de desarrollar.
+- **Autores:** Joaquín Batista, Milagros Cancela, Valentín Rodríguez, Alexia Aurrecoechea, Nahuel López (G1)
+- **Unidad temática:** UT3 · Feature Engineering
+- **Tipo:** Práctica guiada – Assignment UT3-10
+- **Entorno:** Python · Pandas · Scikit-learn · Matplotlib · Seaborn · NumPy
+- **Dataset:** Ames Housing (2 930 registros, 81 variables)
+- **Fecha:** Octubre 2025
+- **Notebook:** Práctica 10 - PCA y Feature Selection
+- **Tiempo estimado:** 90–110 minutos
 
+---
+
+## 🎯 Objetivos de Aprendizaje
+
+- **Implementar** PCA y analizar la varianza explicada por los componentes principales.
+- **Aplicar** múltiples enfoques de feature selection (Filter, Wrapper, Embedded).
+- **Comparar** PCA vs Feature Selection en un caso de negocio real.
+- **Evaluar** trade-offs entre reducción dimensional y performance del modelo.
+
+---
+
+## 📊 Dataset y Contexto de Negocio
+
+### Ames Housing Dataset
+
+- **Registros:** 2 930 casas vendidas en Ames, Iowa (2006-2010).
+- **Variables:** 81 features (38 numéricas, 43 categóricas).
+- **Target:** `SalePrice` (precio de venta en USD).
+- **Características clave:**
+  - Dimensiones: `LotArea`, `GrLivArea`, `TotalBsmtSF`, `GarageArea`.
+  - Calidad: `OverallQual`, `KitchenQual`, `ExterQual`.
+  - Temporales: `YearBuilt`, `YearRemodAdd`, `GarageYrBlt`.
+  - Categóricas: `Neighborhood`, `HouseStyle`, `RoofStyle`.
+
+**Contexto de negocio:** Como data scientist inmobiliario, la meta es reducir la complejidad del modelo, explicar qué variables impactan en el precio y evitar overfitting eliminando atributos redundantes.
+
+---
+
+## 🔬 Metodologías Implementadas
+
+### 1. PCA (Análisis de Componentes Principales)
+
+#### 1.1 Estandarización
+
+```python
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+print(f"Mean: {X_scaled.mean():.6f}")
+print(f"Std: {X_scaled.std():.6f}")
+```
+
+- PCA es sensible a la escala: sin estandarizar, variables como `GrLivArea` dominan por magnitud.
+
+#### 1.2 Análisis de varianza explicada
+
+- PC1 explica 13.4 % de la varianza, PC2 5.0 %, PC3 4.7 %.
+- Se necesitan 39 componentes para conservar 80 % de información y 52 componentes para 90 %.
+- Reducción dimensional obtenida:
+  - Original: 81 features.
+  - PCA 80 %: 39 componentes → 51.9 % de reducción.
+  - PCA 90 %: 52 componentes → 35.8 % de reducción.
+
+![Scree plot de varianza explicada](/practico10/ames-pca-scree-plot.png)
+
+#### 1.3 Interpretación de componentes principales
+
+- PC1 captura tamaño/calidad general (`OverallQual`, `YearBuilt`, `GarageCars`).
+- PC2 describe distribución y configuración de ambientes (`TotRmsAbvGrd`, `1stFlrSF`).
+
+![Loadings PC1 vs PC2](/practico10/ames-pca-loadings-plot.png)
+
+#### 1.4 Proyección de datos
+
+- La proyección PC1 vs PC2 muestra un gradiente de precios: casas más caras se concentran en valores altos de PC1.
+
+![Proyección de datos en el espacio PCA](/practico10/ames-pca-projection.png)
+
+#### 1.5 Feature selection basada en loadings
+
+- Se sumaron los loadings absolutos de los primeros 39 componentes para rankear features originales.
+- Top variables: `RoofMatl`, `Functional`, `ScreenPorch`, `MoSold`, `Heating`.
+- Mantiene interpretabilidad, aunque perdió rendimiento comparado con métodos supervisados.
+
+![Importancia de features derivada de PCA](/practico10/ames-pca-feature-importance.png)
+
+### 2. Filter Methods – Selección estadística
+
+#### 2.1 F-test (ANOVA para regresión)
+
+- Evalúa correlación lineal con el target.
+- RMSE: \$26 491 ± \$4 044 · R²: 0.8875 ± 0.0288.
+- Selecciona principalmente variables estructurales (`OverallQual`, `GrLivArea`, `GarageCars`).
+
+![Top features seleccionados por F-test](/practico10/ames-f-test-features.png)
+
+#### 2.2 Mutual Information (MI)
+
+- Captura relaciones lineales y no lineales.
+- RMSE: \$26 137 ± \$4 111 · R²: 0.8903 ± 0.0293 (mejor resultado).
+- Coincidencia del 76.9 % con F-test; agrega señales adicionales de patrones no lineales.
+
+### 3. Wrapper Methods – Selección basada en modelo
+
+- Evalúan subconjuntos entrenando un modelo repetidamente.
+- **Forward Selection:** 19 features, 62.5 s, RMSE \$40 768 (sobreajuste).
+- **Backward Elimination:** 19 features, 57.3 s, RMSE \$41 788.
+- **RFE:** 0.8 s, RMSE \$41 767, resultados alineados con forward/backward.
+
+![Ranking de features con RFE](/practico10/ames-rfe-ranking.png)
+
+### 4. Embedded Methods
+
+- PCA reduce dimensionalidad (80–90 %) pero pierde interpretabilidad.
+- Métodos con regularización (p.ej. Lasso) se proponen para nuevos experimentos.
+
+---
+
+## 📊 Comparación Final de Métodos
+
+| Método | RMSE | R² | Reducción | Interpretable |
+|--------|------|----|-----------|---------------|
+| Mutual Information | **\$26 137** | **0.890** | 52 % | ✅ |
+| F-test | \$26 491 | 0.888 | 52 % | ✅ |
+| PCA Componentes | \$26 715 | 0.885 | 52 % | ❌ |
+| Dataset original | \$26 807 | 0.885 | 0 % | ✅ |
+| Forward Selection | \$40 768 | 0.736 | 77 % | ✅ |
+| RFE | \$41 767 | 0.723 | 77 % | ✅ |
+| Backward Elimination | \$41 788 | 0.723 | 77 % | ✅ |
+
+🏆 **Ganador absoluto:** Mutual Information (mejor RMSE y R² con interpretabilidad).
+
+---
+
+## 🧪 Investigación Libre: Incremental PCA
+
+- Ideal para datasets que no caben en memoria.
+- Se procesan batches de 1 000 observaciones usando `IncrementalPCA`.
+- Las primeras 5 componentes explican ~29.5 % de la varianza total.
+- Ventajas: reduce uso de memoria y escala a millones de registros.
+
+![Varianza explicada con Incremental PCA](/practico10/ames-incremental-pca-variance.png)
+
+---
+
+## 🤔 Reflexión y Conclusiones
+
+1. **¿Todas las 80+ features son igual de importantes?**  
+   No. Muchas aportan ruido o redundancia y afectan la generalización.
+2. **¿Qué problemas genera tener tantas variables?**  
+   Overfitting, mayor costo computacional y dificultades de interpretación.
+3. **¿Diferencia entre PCA y Feature Selection?**  
+   PCA crea componentes no supervisados; Feature Selection retiene variables originales (con o sin supervisión).
+
+---
+
+## 💡 Insights Clave
+
+- **Mutual Information** superó a PCA en precisión y explicabilidad.
+- Los **loadings de PCA** no garantizan buen rendimiento supervisado.
+- Los **wrapper methods** fueron lentos y empeoraron las métricas por sobre-selección.
+- Los **filter methods** ofrecieron el mejor balance entre performance y costo computacional.
+
+---
+
+## 🚀 Recomendaciones para Producción
+
+- Usar **Mutual Information** para seleccionar ~39 features interpretables.
+- Reservar **PCA** para escenarios donde la interpretabilidad sea secundaria.
+- Evaluar **Lasso/Elastic Net** como métodos embedded adicionales.
+- Versionar los subconjuntos de variables y documentar los criterios de selección.
+
+---
+
+## 📁 Datasets Utilizados
+
+- **Ames Housing Dataset** (Kaggle · UCI ML Repository)  
+  2 930 propiedades, 81 features, target `SalePrice`.
+
+---
+
+## 🔗 Recursos y Referencias
+
+- Scikit-learn Documentation – PCA, Feature Selection.
+- Kaggle Learn – Feature Engineering.
+- Artículo: *“PCA vs Feature Selection”* (Towards Data Science).
