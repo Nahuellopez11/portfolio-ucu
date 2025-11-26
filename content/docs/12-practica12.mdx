@@ -1,10 +1,131 @@
 ---
 title: "Práctica 12"
-date: 2025-11-06
+date: 2025-11-12
 order: 12
 ---
 
-# Práctica 12
+# Práctica 12: Datos Especiales (GeoPandas)
 
-Contenido pendiente de desarrollar.
+- **Autores:** Joaquín Batista, Milagros Cancela, Valentín Rodríguez, Alexia Aurrecoechea, Nahuel López (G1)
+- **Unidad temática:** UT4 · Datos Especiales
+- **Tipo:** Práctica guiada – Assignment UT4-12
+- **Entorno:** Python · GeoPandas · Shapely · Contextily · Folium · MapClassify
+- **Datasets:** Radios censales CABA (`CABA_rc.geojson`) + SUACI GCBA (`gcba_suaci_comunas.csv`)
+- **Fecha:** Noviembre 2025
+- **Notebook:** Práctica 12 - Datos Especiales (GeoPandas)
 
+---
+
+## 🎯 Objetivos de Aprendizaje
+
+- **Implementar** un pipeline geoespacial end-to-end usando GeoPandas y Shapely.
+- **Validar** y estandarizar sistemas de referencia de coordenadas (CRS) antes de medir áreas o distancias.
+- **Construir** coropletas normalizadas por densidad/km² con tiles de contexto.
+- **Aplicar** dissolves y joins atributivos para consolidar información a nivel barrio.
+- **Calcular** indicadores per cápita combinando datos demográficos y métricas de servicio ciudadano.
+- **Reflexionar** sobre patrones espaciales y decisiones cartográficas.
+
+---
+
+## 🗺️ Datasets y Preparación
+
+### Radios censales (CABA)
+
+- GeoJSON público con atributos poblacionales y geometrías de radios.
+- CRS original `EPSG:4326` (WGS84); se reproyecta a `EPSG:3857` para trabajar en metros.
+- Se calculan áreas (m²) y densidades habitacionales (hab/km²) como base para normalizaciones.
+
+![Radios censales y densidad](/practico12/ut4_radios_caba.png)
+
+### Atenciones ciudadanas (SUACI)
+
+- CSV con totales de contactos por barrio (campo `BARRIO`).
+- Se agrupan los registros, se disuelven los radios y se realiza un merge atributivo.
+- Se generan métricas `contactos_pc` (per cápita) para comparar carga relativa.
+
+---
+
+## 🔧 Metodologías Aplicadas
+
+### 1. Limpieza geométrica y reproyección
+
+- Lectura del GeoJSON con `gpd.read_file`.
+- Conversión a CRS proyectado mediante `.to_crs(epsg=3857)` para garantizar consistencia métrica.
+- Cálculo de áreas y densidades derivadas como columnas auxiliares del pipeline.
+
+### 2. Visualización coroplética
+
+- Uso de `GeoDataFrame.plot` con esquemas `quantiles` para evitar clases vacías.
+- Contextualización con tiles `CartoDB.Positron` a través de Contextily y ajuste de límites/leyendas.
+- Comparación de hotspots de densidad frente a zonas residenciales tradicionales.
+
+![Coropleta de densidad habitacional](/practico12/ut4_densidad_hab_km2.png)
+
+### 3. Attribute join y agregaciones zonales
+
+- Disolución de radios a nivel barrio preservando totales poblacionales.
+- Unión con la tabla SUACI para enriquecer con métricas de servicio ciudadano.
+- Cómputo de indicadores normalizados (`contactos_pc`) y ranking de barrios con mayor carga.
+
+![Carga SUACI per cápita](/practico12/ut4_suaci_contactos_pc.png)
+
+### 4. Reflexión guiada
+
+- Justificación de elecciones cartográficas (CRS, esquema de clasificación, tiles).
+- Identificación de hotspots de densidad y atención para análisis urbano accionable.
+
+---
+
+## 📌 Resultados Destacados
+
+- **Densidad habitacional:** radios centrales concentran los valores más altos, priorizando intervenciones urbanas.
+- **Carga SUACI per cápita:** los barrios con más contactos destacan necesidades específicas de servicio ciudadano.
+- **Buenas prácticas CRS:** reproyectar y normalizar evita comparaciones sesgadas entre polígonos heterogéneos.
+- **Mapas con contexto:** los tiles de fondo facilitan reconocer rápidamente los hotspots sobre el tejido urbano.
+
+---
+
+## 🧪 Tarea Extra · Hexgrid/H3
+
+**Objetivo:** Discretizar el espacio y agregar métricas por celdas hexagonales comparables.
+
+- Cobertura H3 (resolución 8) construida con `h3.geo_to_cells` sobre la huella urbana de CABA.
+- Intersección de hexágonos con barrios asumiendo distribución uniforme dentro de cada polígono.
+- Cálculo de densidades:
+  - `contactos_density = total / area_m2`
+  - `poblacion_density = POBLACION / area_m2`
+- Estimación de contribuciones por solape:
+  - `contactos_contrib = contactos_density * area_overlap`
+  - `poblacion_contrib = poblacion_density * area_overlap`
+- Tasa hexagonal: `contactos_pc_hex = contactos_contrib / poblacion_contrib` (por cada 1 000 habitantes).
+- Visualización en Matplotlib sobre el contorno de barrios para contrastar hotspots hex vs. administrativos.
+
+💡 **Hint:** Normalizar por superficie garantiza comparabilidad entre hexágonos y ordenar por percentiles (p. ej. P90) ayuda a priorizar outliers reales frente al ranking tradicional por barrio.
+
+---
+
+## 🧭 Reflexiones y Aprendizajes
+
+- Reproyectar temprano (`EPSG:3857`) mantiene consistencia en áreas y distancias.
+- Los esquemas `quantiles` se alinean al objetivo analítico y evitan clases vacías.
+- `dissolve` habilita indicadores robustos al escalar de radio → barrio.
+- Cruzar datos demográficos con SUACI entrega evidencia para priorizar políticas públicas.
+
+---
+
+## ✅ Checklist de Implementación
+
+- Lectura de datos geoespaciales y validación de geometrías.
+- Reproyección a CRS métrico y cálculo de áreas/densidades.
+- Coropletas con clasificación apropiada y tiles de referencia.
+- Attribute join entre radios y SUACI tras el `dissolve`.
+- Cálculo de métricas per cápita y ranking de hotspots.
+- Reflexión documentada sobre decisiones cartográficas y hallazgos.
+
+---
+
+## 📚 Referencias
+
+- Kaggle Learn — Geospatial Analysis.
+- GeoPandas Documentation — CRS y plotting.
+- GCBA Datos Abiertos — Radios censales y SUACI.

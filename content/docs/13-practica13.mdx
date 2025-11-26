@@ -1,0 +1,149 @@
+---
+title: "Práctica 13"
+date: 2025-11-19
+order: 13
+---
+
+# Práctica 13: Preprocesamiento de Imágenes
+
+- **Autores:** Joaquín Batista, Milagros Cancela, Valentín Rodríguez, Alexia Aurrecoechea, Nahuel López (G1)
+- **Unidad temática:** UT4 · Datos Especiales
+- **Tipo:** Práctica guiada – Assignment UT4-13
+- **Entorno:** Python · OpenCV · scikit-image · NumPy · Matplotlib · Pandas
+- **Dataset:** Pack clásico de `skimage` (camera, astronaut, coffee, coins, checkerboard, rocket, page)
+- **Notebook:** Práctica 13 - Preprocesamiento de Imágenes
+
+---
+
+## 📸 Representación y Diagnóstico Inicial
+
+- Lectura de cada imagen en BGR, conversión a RGB/grises y cálculo de estadísticas básicas.
+- Chequeos automáticos: dimensiones, rango dinámico, media y desvío estándar para detectar saturaciones.
+- El histograma de `camera.png` ocupa 0–255 con media 115.41 → buen uso del rango tonal sin clipping.
+- En RGB domina el canal `R`, aportando un tinte cálido que se debe preservar en etapas posteriores.
+
+![Histogramas iniciales y canales RGB](/practico13/ut5_hist_rgb.png)
+
+```python
+img_bgr = cv2.imread(str(img_path), cv2.IMREAD_COLOR)
+img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+height, width = img_gray.shape
+print(f"H={height} W={width} rango={img_gray.min()}-{img_gray.max()} μ={img_gray.mean():.2f}")
+```
+
+**Hallazgos:** rango dinámico completo, histograma bimodal (alto contraste) y predominio del canal rojo que justifica defensas de color controladas.
+
+---
+
+## 🎨 Espacios de Color y Realce de Contraste
+
+- Se comparó `equalize_hist` en grises vs. CLAHE aplicado al canal `L*` en LAB para evitar alterar matices.
+- Métrica clave: desviación estándar del contraste → `75.12` (original) `80.25` (equalize) `75.87` (CLAHE).
+- CLAHE preserva detalles locales sin sobreexponer, gracias al clip limit y al procesamiento por tiles.
+
+![Comparativa de contraste (original, equalize, CLAHE)](/practico13/ut5_contraste_comparacion.png)
+
+```python
+img_lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB)
+L, A, B = cv2.split(img_lab)
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+L_clahe = clahe.apply(L)
+rgb_clahe = cv2.cvtColor(cv2.merge([L_clahe, A, B]), cv2.COLOR_LAB2RGB)
+```
+
+**Conclusiones:** el canal `L` concentra la luminancia; CLAHE ofrece el mejor balance entre realce global y protección de texturas homogéneas.
+
+---
+
+## 🔧 Suavizado y Detección de Bordes
+
+- Se aplicaron filtros gaussianos y bilaterales antes de ejecutar Canny con umbrales fijos.
+- Varianza del gradiente: `10 788 → 5 335 (gauss) → 5 488 (bilateral)`; ambos reducen ruido, pero el bilateral preserva aristas finas.
+- Ratio de bordes: `0.078` (original) vs `0.038` (bilateral), mostrando menos falsos positivos tras suavizado adaptativo.
+
+![Suavizado y bordes (Gaussian vs Bilateral vs Canny)](/practico13/ut5_suavizado_bordes.png)
+
+**Recomendaciones:** filtro bilateral para escenas con contornos delicados y ajuste de umbrales Canny a `(50, 100)` en escenarios de baja luz.
+
+---
+
+## ⭐ Puntos de Interés y Matching
+
+- Se midió la densidad y repetibilidad de keypoints ORB sobre cada variante preprocessada.
+- CLAHE generó ~1 000 keypoints válidos con repetibilidad 0.62 vs. la imagen original.
+- Parámetros sugeridos para ORB: `nfeatures=750`, `scaleFactor=1.1` para equilibrar cobertura y costo.
+
+![Keypoints ORB por variante](/practico13/ut5_orb_keypoints.png)
+![Matching ORB original vs CLAHE](/practico13/ut5_orb_matches.png)
+
+**Conclusiones:** realzar contraste local potencia gradientes y mejora la estabilidad de features entre escenas.
+
+---
+
+## 📊 Métricas de Calidad y Checks Automáticos
+
+- Reglas rápidas:
+  - `num_keypoints < 100` → alerta crítica (escena pobre o filtrado agresivo).
+  - `edges_ratio ∉ [0.02, 0.15]` → ruido o falta de bordes.
+  - `std_contrast < 20` → iluminación deficiente.
+- Estas métricas alimentan un dashboard QA que destaca imágenes problemáticas.
+
+![Dashboard QA con alertas](/practico13/ut5_dashboard_qa.png)
+
+---
+
+## 🎯 Tareas Extra
+
+### 1. Curva Sensibilidad vs Ruido
+
+- Barrido de `clipLimit` y `tileGridSize` para CLAHE midiendo `num_keypoints` vs. un proxy de ruido (bordes falsos en regiones lisas).
+- Mejor configuración: tiles `4×4` con `clipLimit=1.0`, que maximiza keypoints sin incrementar ruido.
+- Suavizados gaussianos/bilaterales se mantienen estables mientras el kernel ≤ 11.
+
+![Curvas sensibilidad vs ruido](/practico13/ut5_sensibilidad_ruido.png)
+
+### 2. Benchmark ORB vs SIFT
+
+- ORB resulta ≈3.5× más rápido, ideal para pipelines en tiempo real.
+- SIFT recupera más matches absolutos, pero el ratio de matches útiles se mantiene similar (0.54 vs 0.47).
+- Recomendación: usar ORB cuando prime la velocidad y SIFT cuando se privilegie la precisión.
+
+![Benchmark ORB vs SIFT](/practico13/ut5_benchmark_orb_sift.png)
+
+### 3. Dashboard QA
+
+- Tablero con KPIs por imagen y alertas de repetibilidad, edges ratio y contraste.
+- 7 imágenes quedaron bajo alerta crítica (repetibilidad < 0.3) y `page.png` excedió el rango óptimo de bordes (0.121).
+
+![Dashboard QA con alertas](/practico13/ut5_dashboard_qa.png)
+
+---
+
+## 🧠 Conclusiones Finales
+
+- CLAHE es la transformación más útil: realza detalle local sin artefactos globales.
+- El canal `L` en LAB es la pieza central para ajustes de contraste controlados.
+- Existe un trade-off claro entre suavizado y preservación de features; conviene calibrar filtros según la tarea.
+- Los checks automáticos (`num_keypoints`, `edges_ratio`, `std_contrast`, `repeatability`) permiten detectar degradaciones tempranas y priorizar reprocesos.
+- El dashboard QA acelera la revisión colaborativa y documenta decisiones de mantenimiento.
+
+---
+
+## ✅ Checklist de Implementación
+
+- Diagnóstico inicial (histogramas RGB + grises).
+- Comparación Equalize vs CLAHE en LAB.
+- Suavizado (Gaussian/Bilateral) + Canny con métricas de gradiente.
+- Detección y matching de features (ORB).
+- Barrido de parámetros y curva sensibilidad-ruido (opcional).
+- Benchmark ORB vs SIFT (opcional).
+- Dashboard QA con alertas (opcional).
+
+---
+
+## 📚 Referencias
+
+- OpenCV Documentation – Feature Detection (SIFT y ORB).
+- scikit-image User Guide – Contrast Enhancement & Edge Detection.
+- Documentación oficial de ORB/SIFT y estrategias de repetibilidad en visión por computadora.
