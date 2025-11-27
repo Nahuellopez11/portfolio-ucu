@@ -137,6 +137,86 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Exploraciones Extra Section */}
+      <section className="py-16 px-4 bg-white dark:bg-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              🚀 Exploraciones Extra
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">
+              Investigando + Datasets
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">
+              2 Exploraciones Completadas · 16 Visualizaciones Generadas
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            <Link
+              href="/docs/101-Extra-1"
+              className="group block p-6 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 border border-orange-200 dark:border-orange-800"
+            >
+              <div className="flex items-center mb-4">
+                <div className="text-3xl mr-3">🛒</div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400">
+                  Análisis de Precios de Supermercado
+                </h3>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Comparación de precios entre supermercados, análisis de ofertas, cálculo de canasta básica y estrategias de ahorro inteligente para optimizar el presupuesto familiar.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 text-sm rounded-full">
+                  Análisis Comparativo
+                </span>
+                <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-sm rounded-full">
+                  Datos del Día a Día
+                </span>
+                <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 text-sm rounded-full">
+                  Optimización
+                </span>
+              </div>
+            </Link>
+            
+            <Link
+              href="/docs/102-Extra-2"
+              className="group block p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 border border-blue-200 dark:border-blue-800"
+            >
+              <div className="flex items-center mb-4">
+                <div className="text-3xl mr-3">🚌</div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                  Análisis de Transporte Público
+                </h3>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Análisis de patrones de uso, identificación de horarios pico, comparación de eficiencia de líneas y optimización de rutas para desplazamientos diarios.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full">
+                  Análisis Temporal
+                </span>
+                <span className="px-3 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-800 dark:text-cyan-300 text-sm rounded-full">
+                  Optimización
+                </span>
+                <span className="px-3 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300 text-sm rounded-full">
+                  Patrones
+                </span>
+              </div>
+            </Link>
+          </div>
+
+          <div className="text-center mt-8">
+            <Link
+              href="/docs/100-Exploraciones-Extra"
+              className="inline-block text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors duration-200"
+            >
+              Ver todas las exploraciones →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16 px-4 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto text-center">
