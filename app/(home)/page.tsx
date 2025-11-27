@@ -160,7 +160,7 @@ export default function HomePage() {
               <div className="flex items-center mb-4">
                 <div className="text-3xl mr-3">🛒</div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400">
-                  Análisis de Precios de Supermercado
+                  Extra 1: Análisis de Precios de Supermercado
                 </h3>
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
@@ -186,7 +186,7 @@ export default function HomePage() {
               <div className="flex items-center mb-4">
                 <div className="text-3xl mr-3">🚌</div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                  Análisis de Transporte Público
+                  Extra 2: Análisis de Transporte Público
                 </h3>
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
