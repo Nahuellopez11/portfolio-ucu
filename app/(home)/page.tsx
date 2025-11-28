@@ -154,7 +154,7 @@ export default function HomePage() {
           
           <div className="grid md:grid-cols-2 gap-8">
             <Link
-              href="/docs/101-Extra-1"
+              href="/docs/extra/Extra-1"
               className="group block p-6 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 border border-orange-200 dark:border-orange-800"
             >
               <div className="flex items-center mb-4">
@@ -180,7 +180,7 @@ export default function HomePage() {
             </Link>
             
             <Link
-              href="/docs/102-Extra-2"
+              href="/docs/extra/Extra-2"
               className="group block p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 border border-blue-200 dark:border-blue-800"
             >
               <div className="flex items-center mb-4">
@@ -208,7 +208,7 @@ export default function HomePage() {
 
           <div className="text-center mt-8">
             <Link
-              href="/docs/100-Exploraciones-Extra"
+              href="/docs/extra/Extra-1"
               className="inline-block text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors duration-200"
             >
               Ver todas las exploraciones →
