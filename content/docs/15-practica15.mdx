@@ -1,0 +1,251 @@
+---
+title: "Práctica 15"
+date: 2025-12-10
+order: 15
+---
+
+# Práctica 15: A Tour of Google Cloud Hands-on Labs
+
+- **Autores:** Nahuel López (G1)
+- **Unidad temática:** Cloud Computing · Google Cloud Platform
+- **Tipo:** Práctica guiada – Hands-on Lab
+- **Entorno:** Google Cloud Console · Qwiklabs/Skills Boost
+- **Plataforma:** Google Cloud Platform (GCP)
+- **Fecha:** Diciembre 2025
+
+---
+
+## 🎯 Objetivos de Aprendizaje
+
+- **Acceder** a la Google Cloud Console utilizando credenciales temporales proporcionadas por el laboratorio.
+- **Reconocer** los componentes del entorno Qwiklabs/Skills Boost: panel de detalles, temporizador, botones Start/End Lab.
+- **Explorar** proyectos de Google Cloud y comprender su función como contenedores de recursos.
+- **Navegar** servicios desde el menú principal de la consola de GCP.
+- **Revisar** y **modificar** permisos básicos utilizando Cloud IAM.
+- **Habilitar** una API desde la API Library (Dialogflow como ejemplo).
+
+---
+
+## 📊 Contexto del Laboratorio
+
+Este laboratorio funciona como una introducción práctica y guiada a la consola de Google Cloud Platform. Su propósito es familiarizar a los estudiantes con el entorno de trabajo antes de abordar tareas más complejas.
+
+**Características principales:**
+
+- Al iniciar el lab, se crea automáticamente un proyecto temporal de Google Cloud.
+- Todas las tareas se realizan dentro de este proyecto temporal.
+- Las credenciales y el proyecto se eliminan automáticamente al finalizar el lab o cuando expira el tiempo asignado.
+- Se recomienda usar navegación de incógnito para evitar conflictos con cuentas personales.
+
+**Importante:** No se deben mezclar credenciales personales con las credenciales temporales del laboratorio.
+
+---
+
+## 🔧 Metodologías Aplicadas
+
+### Parte A — Entorno del Lab y Acceso a la Consola
+
+#### Panel "Lab Details"
+
+El panel de detalles del laboratorio contiene información esencial para comenzar:
+
+- **Botón "Open Google Cloud Console":** Acceso directo a la consola de GCP.
+- **Username y Password temporales:** Credenciales únicas generadas para cada sesión del lab.
+- **Project ID:** Identificador único del proyecto temporal asignado automáticamente.
+
+**Nota importante:** Las credenciales solo funcionan mientras el temporizador del lab está activo. Una vez que el tiempo expira o se finaliza el lab, las credenciales se invalidan.
+
+#### Proceso de Acceso
+
+1. **Iniciar el lab:** Se hizo clic en el botón "Start Lab" para crear el proyecto temporal.
+2. **Abrir la consola:** Desde el panel de detalles, se utilizó el botón "Open Google Cloud Console" que abre la consola en una nueva pestaña.
+3. **Autenticación:** Se seleccionó "Use another account" y se ingresaron las credenciales temporales (email y password del lab).
+4. **Aceptar términos:** Se aceptaron los términos de servicio de Google Cloud.
+5. **Verificación:** Una vez autenticado, la consola queda asociada automáticamente al proyecto temporal del lab.
+
+**Resultado:** Acceso completo a la consola de Google Cloud con permisos de Editor en el proyecto temporal.
+
+---
+
+### Parte B — Proyectos de Google Cloud: Vista y Exploración
+
+#### Concepto de Google Cloud Project
+
+Un proyecto de Google Cloud es un contenedor organizacional que agrupa todos los recursos relacionados:
+
+- Máquinas virtuales (VMs)
+- Redes y configuración de red
+- Bases de datos
+- APIs habilitadas
+- Permisos y roles IAM
+- Facturación y cuotas
+
+Cada proyecto tiene un identificador único (Project ID) y un número de proyecto asignado por Google.
+
+#### Exploración del Proyecto Temporal
+
+**Información del proyecto:**
+
+En la tarjeta "Project Info" se revisaron los siguientes elementos:
+
+- **Project Name:** Nombre descriptivo del proyecto temporal.
+- **Project Number:** Identificador numérico único asignado por Google.
+- **Project ID:** Identificador alfanumérico único usado en URLs y comandos.
+
+**Selector de proyectos:**
+
+1. Se abrió el selector de proyectos desde la barra superior de la consola.
+2. Se seleccionó la opción "All" para ver todos los proyectos disponibles.
+3. Se observó la presencia de otro proyecto: **"Qwiklabs Resources"**.
+
+**Qwiklabs Resources:**
+
+- Es un proyecto compartido en modo solo lectura.
+- Contiene recursos comunes utilizados por múltiples laboratorios.
+- **Importante:** No se debe cambiar a este proyecto; todo el trabajo debe realizarse en el proyecto temporal asignado.
+
+**Concepto clave:** Cada laboratorio utiliza un proyecto independiente que se crea al inicio y se elimina completamente al finalizar, garantizando un entorno limpio y aislado para cada práctica.
+
+---
+
+### Parte C — IAM: Roles y Permisos
+
+#### Introducción a Cloud IAM
+
+Cloud Identity and Access Management (IAM) es el sistema de control de acceso de Google Cloud que permite gestionar quién tiene acceso a qué recursos dentro de un proyecto.
+
+#### Roles Básicos Revisados
+
+Se exploraron tres roles fundamentales:
+
+1. **Viewer:**
+   - Permisos de solo lectura.
+   - Puede ver recursos pero no modificarlos.
+   - Útil para usuarios que necesitan consultar información sin realizar cambios.
+
+2. **Editor:**
+   - Permisos de lectura y modificación de recursos.
+   - Puede crear, modificar y eliminar recursos.
+   - **Nota:** La cuenta del lab (student…) típicamente tiene este rol.
+
+3. **Owner:**
+   - Permisos completos sobre el proyecto.
+   - Incluye gestión de permisos e IAM.
+   - Puede modificar roles y permisos de otros usuarios.
+
+#### Ejercicio Práctico: Asignar un Rol
+
+**Objetivo:** Aprender a otorgar acceso a otros usuarios dentro de un proyecto.
+
+**Pasos realizados:**
+
+1. **Navegación:** Se accedió a Navigation menu → IAM & Admin → IAM.
+2. **Grant Access:** Se hizo clic en el botón "Grant Access" (Grant Access).
+3. **Agregar usuario:** Se ingresó una segunda cuenta de estudiante proporcionada por el lab en el campo de "New principals".
+4. **Asignar rol:** Se seleccionó el rol "Viewer" desde el menú desplegable de roles.
+5. **Guardar:** Se confirmaron los cambios haciendo clic en "Save".
+6. **Verificación:** Se comprobó que el nuevo usuario apareciera en la lista de miembros del proyecto con el rol Viewer asignado.
+
+**Resultado:** Se demostró exitosamente cómo otorgar acceso a otros usuarios y asignarles roles específicos dentro de un proyecto de Google Cloud.
+
+---
+
+### Parte D — Habilitación de APIs
+
+#### Introducción a la API Library
+
+Google Cloud Platform ofrece cientos de servicios y APIs. Antes de utilizar cualquier servicio, es necesario habilitarlo en el proyecto. La API Library es el catálogo central donde se pueden buscar, revisar y habilitar APIs.
+
+#### Proceso de Habilitación
+
+**Ejemplo práctico: Habilitar Dialogflow API**
+
+1. **Navegación:** Se accedió a Navigation menu → APIs & Services → Library.
+2. **Búsqueda:** Se utilizó la barra de búsqueda para encontrar "Dialogflow API".
+3. **Selección:** Se hizo clic en el resultado de Dialogflow API para ver sus detalles.
+4. **Habilitación:** Se presionó el botón "Enable" para activar la API en el proyecto.
+5. **Confirmación:** Se verificó que la API apareciera en la lista de APIs habilitadas (APIs & Services → Enabled APIs).
+6. **Exploración:** Se utilizó la opción "Try this API" para examinar la documentación interactiva y entender cómo se utiliza la API.
+
+**Concepto importante:** Cualquier servicio de Google Cloud (Compute Engine, Cloud Storage, BigQuery, etc.) debe estar habilitado explícitamente en el proyecto antes de poder utilizarse. Esto permite un control granular sobre qué servicios están activos y ayuda a gestionar costos.
+
+---
+
+### Parte E — Cierre del Lab
+
+#### Proceso de Finalización
+
+Al completar todas las tareas del laboratorio:
+
+1. **End Lab:** Desde la interfaz del lab (Qwiklabs/Skills Boost), se presionó el botón "End Lab".
+2. **Evaluación:** Se completó la evaluación del lab (opcional pero recomendado).
+3. **Eliminación automática:** El proyecto temporal se eliminó completamente de Google Cloud.
+4. **Invalidación de sesión:** La sesión de la consola quedó invalidada automáticamente.
+5. **Limpieza:** Todo rastro del proyecto, recursos y credenciales desaparece al cerrar el lab.
+
+**Importante:** Una vez finalizado el lab, no es posible acceder nuevamente al proyecto temporal. Si se necesita continuar trabajando, es necesario iniciar un nuevo lab.
+
+---
+
+## 🧠 Conclusiones y Aprendizajes
+
+### Resumen de Hallazgos
+
+1. **Navegación de la consola:** Se recorrió la consola de Google Cloud desde cero, familiarizándose con su estructura y organización.
+
+2. **Proyectos temporales:** Se comprendió cómo funcionan los proyectos temporales del sistema de labs, que proporcionan un entorno limpio y aislado para cada práctica.
+
+3. **Gestión de permisos:** Se revisaron los conceptos fundamentales de IAM y se practicó la asignación de roles a usuarios, específicamente añadiendo un nuevo principal con rol Viewer.
+
+4. **Habilitación de servicios:** Se aprendió el proceso de habilitar APIs utilizando la API Library, un paso esencial antes de utilizar cualquier servicio de GCP.
+
+5. **Ciclo de vida del lab:** Se comprendió el ciclo completo del entorno del lab: iniciar (creación del proyecto), trabajar (realizar tareas), y destruir (eliminación automática del proyecto temporal).
+
+### Preparación para Labs Avanzados
+
+Este laboratorio introductorio sienta las bases para abordar labs más complejos que cubren:
+
+- **Compute Engine:** Creación y gestión de máquinas virtuales.
+- **Cloud Shell:** Uso de la terminal integrada en el navegador.
+- **Networking:** Configuración de redes, VPCs y reglas de firewall.
+- **Bases de datos:** Cloud SQL, Firestore, Bigtable.
+- **Arquitecturas:** Diseño de soluciones escalables en la nube.
+
+### Buenas Prácticas Aprendidas
+
+- **Aislamiento:** Usar navegación de incógnito para evitar conflictos con cuentas personales.
+- **Organización:** Comprender que los proyectos son contenedores lógicos que agrupan recursos relacionados.
+- **Seguridad:** Aplicar el principio de menor privilegio al asignar roles (solo los permisos necesarios).
+- **Gestión de servicios:** Habilitar solo las APIs necesarias para mantener el proyecto organizado y controlar costos.
+
+---
+
+## ✅ Checklist de Implementación
+
+- Acceso exitoso a Google Cloud Console con credenciales temporales
+- Revisión del panel "Lab Details" y comprensión de sus componentes
+- Exploración de la información del proyecto temporal (Project Name, Number, ID)
+- Navegación por el selector de proyectos y reconocimiento de "Qwiklabs Resources"
+- Revisión de roles básicos de IAM (Viewer, Editor, Owner)
+- Asignación exitosa de rol Viewer a un segundo usuario
+- Navegación a la API Library
+- Búsqueda y habilitación de Dialogflow API
+- Verificación de API habilitada en la lista de Enabled APIs
+- Exploración de documentación mediante "Try this API"
+- Finalización correcta del lab mediante "End Lab"
+- Comprensión del ciclo de vida completo del proyecto temporal
+
+---
+
+## 📚 Referencias y Recursos
+
+- [Google Cloud Console Documentation](https://cloud.google.com/docs)
+- [Cloud IAM Documentation](https://cloud.google.com/iam/docs)
+- [API Library - Google Cloud](https://console.cloud.google.com/apis/library)
+- [Qwiklabs / Google Cloud Skills Boost](https://www.cloudskillsboost.google/)
+- [Google Cloud Projects Overview](https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy)
+
+---
+
+*Este laboratorio introductorio proporciona la base esencial para trabajar con Google Cloud Platform, estableciendo los fundamentos necesarios para explorar servicios más avanzados y construir soluciones en la nube.*
+
