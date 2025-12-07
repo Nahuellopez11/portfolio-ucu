@@ -1,0 +1,308 @@
+---
+title: "Práctica 16"
+date: 2025-12-17
+order: 16
+---
+
+# Práctica 16: Cloud Dataprep - Pipeline ETL Visual
+
+- **Autores:** Nahuel López (G1)
+- **Unidad temática:** Cloud Computing · Google Cloud Platform
+- **Tipo:** Práctica guiada – Hands-on Lab
+- **Entorno:** Cloud Dataprep by Alteryx · BigQuery · Dataflow
+- **Plataforma:** Google Cloud Platform (GCP)
+- **Fecha:** Diciembre 2025
+
+---
+
+## 🎯 Objetivos de Aprendizaje
+
+- **Conectar** datasets de BigQuery a Cloud Dataprep para su procesamiento.
+- **Explorar** la calidad de datos utilizando las herramientas visuales de Dataprep.
+- **Construir** un pipeline de transformación de datos mediante interfaz visual.
+- **Aplicar** técnicas de limpieza y enriquecimiento de datos sin código.
+- **Ejecutar** jobs de transformación y exportar resultados a BigQuery.
+
+---
+
+## 📊 Contexto del Laboratorio
+
+En esta práctica se utiliza **Cloud Dataprep by Alteryx**, un servicio de preparación de datos que permite explorar, limpiar y transformar datos estructurados y no estructurados mediante una interfaz visual intuitiva.
+
+**Objetivo principal:** Construir un pipeline ETL completo que procese datos crudos de comercio electrónico y los prepare para análisis posterior, todo sin necesidad de escribir código complejo.
+
+**Dataset utilizado:** Datos de sesiones de e-commerce (`all_sessions_raw_dataprep`) almacenados en BigQuery, que contienen información sobre visitas, productos, transacciones y comportamiento de usuarios.
+
+---
+
+## 🔧 Metodologías Aplicadas
+
+### Parte A — Configuración Inicial y BigQuery
+
+#### Acceso a Cloud Dataprep
+
+El primer paso consistió en acceder a Cloud Dataprep desde la consola de Google Cloud Platform:
+
+1. **Navegación:** Se accedió a Cloud Dataprep desde el menú de navegación de la consola.
+2. **Términos de servicio:** Se aceptaron los términos de servicio necesarios para utilizar el servicio.
+3. **Habilitación:** Se verificó que las APIs requeridas estuvieran habilitadas en el proyecto.
+
+#### Preparación del Dataset en BigQuery
+
+Aunque el foco principal es Dataprep, BigQuery actúa como punto de entrada y salida de datos:
+
+1. **Creación de dataset:** Se creó un dataset llamado `ecommerce` en BigQuery para almacenar los datos de trabajo.
+2. **Copia de datos:** Se ejecutó una consulta SQL para copiar un subconjunto de datos públicos (`all_sessions_raw_dataprep`) al dataset creado.
+3. **Verificación:** Se confirmó que los datos se copiaron correctamente y están disponibles para su procesamiento.
+
+**Resultado:** Dataset preparado en BigQuery listo para ser importado a Dataprep.
+
+---
+
+### Parte B — Conexión de Datos a Dataprep
+
+#### Creación del Flow
+
+Un "Flow" en Dataprep es un contenedor que agrupa todas las transformaciones de un pipeline:
+
+1. **Nuevo Flow:** Se creó un nuevo Flow llamado "Ecommerce Analytics Pipeline".
+2. **Importación:** Se importó el dataset `all_sessions_raw_dataprep` desde BigQuery al Flow.
+3. **Conexión:** Se añadió el dataset al flujo de trabajo, permitiendo que Dataprep acceda a los datos.
+
+**Ventaja:** La conexión directa con BigQuery permite trabajar con grandes volúmenes de datos sin necesidad de descargarlos localmente.
+
+---
+
+### Parte C — Exploración de Datos
+
+#### Vista Transformer
+
+Dataprep carga automáticamente una muestra representativa del dataset en la vista "Transformer", donde se pueden visualizar y analizar los datos:
+
+**Análisis de calidad realizado:**
+
+1. **Valores nulos:**
+   - Se identificaron columnas con alto porcentaje de valores faltantes.
+   - Ejemplos: `itemQuantity` y `itemRevenue` contenían únicamente valores nulos.
+
+2. **Tipos de datos incorrectos:**
+   - Se detectó que `productSKU` fue inferido como entero cuando debería ser string.
+   - Esto puede causar problemas en transformaciones posteriores.
+
+3. **Distribuciones:**
+   - Se analizó la distribución de valores en columnas numéricas.
+   - Ejemplo: `sessionQualityDim` mostró un sesgo hacia valores bajos.
+
+4. **Valores atípicos:**
+   - Se identificaron outliers y patrones inesperados en los datos.
+   - Se detectaron inconsistencias que requieren limpieza.
+
+**Insight:** La exploración visual permite identificar problemas de calidad de datos de manera rápida y eficiente, guiando las decisiones de limpieza.
+
+---
+
+### Parte D — Limpieza de Datos
+
+#### Construcción de la Recipe
+
+Una "Recipe" en Dataprep contiene todas las transformaciones que se aplicarán a los datos. Se implementaron los siguientes pasos de limpieza:
+
+#### 1. Conversión de Tipos de Datos
+
+**Problema:** La columna `productSKU` fue detectada incorrectamente como entero.
+
+**Solución:** Se aplicó una transformación para convertir `productSKU` a tipo String, preservando todos los valores y permitiendo manejar códigos alfanuméricos.
+
+#### 2. Eliminación de Columnas
+
+**Problema:** Las columnas `itemQuantity` e `itemRevenue` contenían únicamente valores nulos, no aportando información útil.
+
+**Solución:** Se eliminaron estas columnas del dataset para reducir el tamaño y simplificar el análisis posterior.
+
+#### 3. Deduplicación
+
+**Problema:** Existían filas duplicadas que podían sesgar los análisis.
+
+**Solución:** Se aplicó una transformación de deduplicación basada en todas las columnas, eliminando registros exactamente iguales y manteniendo solo una instancia de cada fila única.
+
+#### 4. Filtrado de Datos
+
+Se aplicaron dos filtros principales:
+
+**Filtro 1: Sesiones con ingresos**
+- **Condición:** `totalTransactionRevenue IS NOT NULL`
+- **Objetivo:** Mantener solo sesiones que generaron ingresos para el análisis de revenue.
+
+**Filtro 2: Tipo de registro**
+- **Condición:** `type = 'PAGE'`
+- **Objetivo:** Mantener únicamente registros de tipo PAGE (vistas de página) para evitar conteos dobles de eventos.
+
+**Resultado:** Dataset limpio con datos consistentes y sin duplicados.
+
+---
+
+### Parte E — Enriquecimiento de Datos
+
+#### Transformaciones Avanzadas
+
+Se implementaron transformaciones para mejorar la calidad y utilidad del dataset:
+
+#### 1. ID Único de Sesión
+
+**Problema:** La columna `visitId` no es única entre diferentes usuarios, lo que puede causar ambigüedad.
+
+**Solución:** Se creó una nueva columna `unique_session_id` concatenando `fullVisitorId` y `visitId`:
+
+```
+unique_session_id = CONCAT(fullVisitorId, '_', visitId)
+```
+
+Esto garantiza un identificador único para cada sesión de usuario.
+
+#### 2. Mapeo de Acciones de E-commerce
+
+**Problema:** La columna `eCommerceAction_type` utiliza códigos numéricos que no son intuitivos (ej: 0, 1, 2, 6).
+
+**Solución:** Se creó una columna calculada `eCommerceAction_label` utilizando una expresión CASE para mapear códigos a descripciones legibles:
+
+- `0` → 'Unknown'
+- `1` → 'Click through of product lists'
+- `2` → 'Product detail views'
+- `6` → 'Completed purchase'
+- etc.
+
+Esto mejora significativamente la legibilidad del dataset para análisis posteriores.
+
+#### 3. Ajuste de Ingresos
+
+**Problema:** La columna `totalTransactionRevenue` almacena valores multiplicados por 10^6, lo que dificulta la interpretación directa.
+
+**Solución:** Se creó una nueva columna `totalTransactionRevenue1` dividiendo el valor original por 1,000,000:
+
+```
+totalTransactionRevenue1 = totalTransactionRevenue / 1000000
+```
+
+Esto proporciona valores de ingresos en la escala correcta para análisis y reportes.
+
+**Resultado:** Dataset enriquecido con columnas derivadas que facilitan el análisis posterior.
+
+---
+
+### Parte F — Ejecución del Job a BigQuery
+
+#### Configuración de Salida
+
+Una vez completadas todas las transformaciones, se configuró la salida del pipeline:
+
+1. **Destino:** Se configuró BigQuery como destino de salida.
+2. **Tabla destino:** Se especificó la creación de una nueva tabla llamada `revenue_reporting`.
+3. **Dataset:** Se seleccionó el dataset `ecommerce` como ubicación de la tabla.
+
+#### Ejecución del Job
+
+1. **Entorno:** Se ejecutó el job utilizando el entorno Dataflow + BigQuery.
+2. **Procesamiento:** Dataflow procesó el dataset completo aplicando todas las transformaciones definidas en la Recipe.
+3. **Monitoreo:** Se monitoreó el progreso del job desde la interfaz de Dataprep.
+
+#### Verificación
+
+Una vez finalizado el job:
+
+1. **BigQuery:** Se accedió a BigQuery para verificar la creación de la tabla.
+2. **Validación:** Se confirmó que la tabla `revenue_reporting` se creó correctamente.
+3. **Datos:** Se revisó una muestra de los datos transformados para validar que las transformaciones se aplicaron correctamente.
+
+**Resultado:** Tabla `revenue_reporting` en BigQuery con datos limpios, transformados y listos para análisis.
+
+---
+
+## 🧠 Conclusiones y Aprendizajes
+
+### Resumen de Hallazgos
+
+1. **Pipeline ETL visual:** Se construyó exitosamente un pipeline ETL completo utilizando únicamente una interfaz visual, demostrando que no es necesario escribir código complejo para realizar transformaciones de datos.
+
+2. **Exploración de calidad:** Cloud Dataprep facilitó la identificación de problemas de calidad de datos mediante visualizaciones intuitivas y estadísticas automáticas.
+
+3. **Transformaciones eficientes:** Se aplicaron múltiples transformaciones (limpieza, enriquecimiento, filtrado) de manera secuencial y organizada mediante la Recipe.
+
+4. **Integración con BigQuery:** La integración nativa entre Dataprep y BigQuery permite un flujo de trabajo fluido desde la preparación hasta el almacenamiento de datos procesados.
+
+5. **Dataset final:** Se obtuvo un dataset limpio y enriquecido (`revenue_reporting`) listo para análisis avanzados, reportes y visualizaciones.
+
+### Ventajas de Cloud Dataprep
+
+- **Sin código:** Permite realizar transformaciones complejas sin escribir código.
+- **Visualización:** Facilita la comprensión del flujo de transformaciones.
+- **Escalabilidad:** Procesa grandes volúmenes de datos utilizando Dataflow.
+- **Integración:** Se integra nativamente con otros servicios de GCP.
+
+### Desafíos Encontrados
+
+- **Inferencia de tipos:** A veces los tipos de datos se infieren incorrectamente y requieren corrección manual.
+- **Costo:** El procesamiento en Dataflow puede ser costoso para datasets muy grandes.
+- **Curva de aprendizaje:** Aunque es visual, requiere familiarizarse con las transformaciones disponibles.
+
+---
+
+## 🚀 Próximos Pasos
+
+### Automatización
+
+- **Cloud Scheduler:** Explorar la automatización del pipeline mediante Cloud Scheduler para ejecuciones periódicas (diarias, semanales).
+- **Triggers:** Configurar triggers basados en eventos para ejecutar el pipeline cuando nuevos datos lleguen a BigQuery.
+
+### Funcionalidades Avanzadas
+
+- **Expresiones regulares:** Investigar el uso de expresiones regulares personalizadas en Dataprep para limpieza más sofisticada.
+- **Transformaciones complejas:** Explorar funciones avanzadas de agregación y cálculo de columnas.
+
+### Visualización y Análisis
+
+- **Looker Studio:** Conectar el dataset resultante en BigQuery con Looker Studio para crear dashboards de monitoreo de ingresos.
+- **Análisis exploratorio:** Realizar análisis adicionales sobre el dataset limpio para obtener insights de negocio.
+
+### Optimización
+
+- **Costo:** Evaluar el costo del procesamiento en Dataflow para optimizar el uso de recursos en datasets de mayor volumen.
+- **Performance:** Analizar el tiempo de ejecución y optimizar transformaciones para mejorar la eficiencia.
+
+---
+
+## ✅ Checklist de Implementación
+
+- Acceso a Cloud Dataprep desde la consola de GCP
+- Creación del dataset `ecommerce` en BigQuery
+- Copia de datos públicos al dataset de trabajo
+- Creación del Flow "Ecommerce Analytics Pipeline"
+- Importación del dataset desde BigQuery a Dataprep
+- Exploración visual de calidad de datos en Transformer
+- Identificación de columnas con valores nulos
+- Detección de tipos de datos incorrectos
+- Análisis de distribuciones y valores atípicos
+- Conversión de tipos de datos (productSKU a String)
+- Eliminación de columnas innecesarias (itemQuantity, itemRevenue)
+- Deduplicación de filas
+- Filtrado de sesiones sin ingresos
+- Filtrado por tipo de registro (PAGE)
+- Creación de ID único de sesión (unique_session_id)
+- Mapeo de códigos de acción a etiquetas legibles
+- Ajuste de escala de ingresos (división por 1,000,000)
+- Configuración de salida a BigQuery
+- Ejecución del job en Dataflow
+- Verificación de la tabla revenue_reporting en BigQuery
+
+---
+
+## 📚 Referencias y Recursos
+
+- [Cloud Dataprep Documentation](https://cloud.google.com/dataprep/docs)
+- [BigQuery Documentation](https://cloud.google.com/bigquery/docs)
+- [Dataflow Documentation](https://cloud.google.com/dataflow/docs)
+- [Cloud Dataprep User Guide](https://help.trifacta.com/cloud-dataprep/)
+- [Google Cloud ETL Best Practices](https://cloud.google.com/architecture/etl-patterns)
+
+---
+
+*Esta práctica demuestra cómo Cloud Dataprep simplifica la preparación de datos mediante una interfaz visual, permitiendo construir pipelines ETL complejos sin necesidad de programación, y facilitando la integración con otros servicios de Google Cloud Platform.*
